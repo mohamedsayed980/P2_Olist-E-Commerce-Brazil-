@@ -486,6 +486,22 @@ def acc_colour(v: float) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Initialize session state defaults
+if "corr_threshold" not in st.session_state:
+    st.session_state.corr_threshold = 0.3
+if "df_raw" not in st.session_state:
+    st.session_state.df_raw = None
+if "df_work" not in st.session_state:
+    st.session_state.df_work = None
+if "target_col" not in st.session_state:
+    st.session_state.target_col = None
+if "num_cols" not in st.session_state:
+    st.session_state.num_cols = []
+if "cat_cols" not in st.session_state:
+    st.session_state.cat_cols = []
+if "file_name" not in st.session_state:
+    st.session_state.file_name = ""
+
 # E  SIDEBAR — DATA LOADER>>>
 # ─────────────────────────────────────────────────────────────────────────────
 # =============================================================================
