@@ -11,4 +11,5 @@ psutil
 openpyxl 
 reportlab
 Document
+docx
 FPDF
