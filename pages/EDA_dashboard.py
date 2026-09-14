@@ -341,7 +341,7 @@ with tabs[0]:
                     elif abs_val >= 0.50: return "background-color:#fff9c4; color:#e65100;"
                     else: return ""
 
-                styled = corr_df.style.applymap(color_corr, subset=["Correlation"])
+                styled = corr_df.style.map(color_corr, subset=["Correlation"])
                 st.dataframe(styled, use_container_width=True, height=320)
 
                 # Update important_vars
