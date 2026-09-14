@@ -10,6 +10,4 @@ statsmodels
 psutil 
 openpyxl 
 reportlab
-docx
-Document
-FPDF
+python-docx
