@@ -16,7 +16,7 @@
 # =============================================================================
 
 # A1 — Core
-import streamlit as st
+import streamlit as stmap
 import pandas as pd
 import numpy as np
 import os
@@ -634,7 +634,7 @@ with tabs[2]:
                     elif val <= 10: return "background-color:#fff8e1; color:#e65100;"
                     else:          return "background-color:#ffebee; color:#c62828;"
 
-                styled_iqr = iqr_df.style.applymap(style_outlier_pct, subset=["Outlier %"])
+                styled_iqr = iqr_df.style.map(style_outlier_pct, subset=["Outlier %"])
                 st.dataframe(styled_iqr, use_container_width=True, height=230)
 
                 st.markdown("")
@@ -858,7 +858,7 @@ with tabs[4]:
                             return ""
                         except: return ""
 
-                    styled_sum = sum_df.style.applymap(color_corr_summary, subset=["Corr with Target"])
+                    styled_sum = sum_df.style.map(color_corr_summary, subset=["Corr with Target"])
                     st.dataframe(styled_sum, use_container_width=True, height=380)
 
                 # Export summary
@@ -1116,7 +1116,7 @@ with tabs[5]:
                     elif val < 20: return "background:#fff8e1;color:#e65100;"
                     return "background:#ffebee;color:#c62828;font-weight:bold;"
 
-                styled_miss = miss_df.style.applymap(color_miss, subset=["Missing %"])
+                styled_miss = miss_df.style.map(color_miss, subset=["Missing %"])
                 st.dataframe(styled_miss, use_container_width=True, height=300)
 
             with col_miss_right:
@@ -1365,7 +1365,7 @@ with tabs[6]:
                         return "background:#e8f5e9;color:#2e7d32;"
                     except: return ""
 
-                styled_vif = vif_df[["Feature", "VIF", "Status"]].style.applymap(
+                styled_vif = vif_df[["Feature", "VIF", "Status"]].style.map(
                     color_vif, subset=["VIF"]
                 )
                 st.dataframe(styled_vif, use_container_width=True, height=380)
