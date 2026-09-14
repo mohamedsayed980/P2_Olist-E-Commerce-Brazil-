@@ -16,10 +16,10 @@
 # =============================================================================
 
 # A1 — Core
-import streamlit as stmap
+import streamlit as st
+import os, pathlib
 import pandas as pd
 import numpy as np
-import os
 import io
 
 # A2 — Visualization
