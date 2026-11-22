@@ -5,6 +5,7 @@
 # Adds NEW: Tab 7 (Missing Values & Imputation) + Tab 8 (Multicollinearity VIF)
 #
 # Compatible with: ML_Engine_Step2_Outliers_Report.py  (Part 1 backend)
+# Dataset tested:  kc_house_data.csv  (King County House Prices)
 #
 # Run with:  streamlit run ML_Engine_Dashboard.py
 # =============================================================================
@@ -16,7 +17,6 @@
 
 # A1 — Core
 import streamlit as st
-
 import pandas as pd
 import numpy as np
 import os
@@ -82,81 +82,6 @@ def init_state():
 
 init_state()
 
-
-# =============================================================================
-# F — FILE LOADER  (auto-load from data/ folder, upload as fallback)
-# =============================================================================
-_root     = pathlib.Path(__file__).parent.parent
-_csv_path = _root / "data" / "olist_full_clean.csv"
-
-
-@st.cache_data
-def _load_auto():
-    if _csv_path.exists():
-        return pd.read_csv(_csv_path)
-    return pd.DataFrame()
-
-
-def _register(df, name):
-    st.session_state.df_raw    = df.copy()
-    st.session_state.df_work   = df.copy()
-    st.session_state.file_name = name
-    st.session_state.num_cols  = get_numeric_cols(df)
-    st.session_state.cat_cols  = get_cat_cols(df)
-    if len(st.session_state.num_cols) == 0:
-        st.session_state.num_cols = df.select_dtypes(include="number").columns.tolist()
-    if len(st.session_state.cat_cols) == 0:
-        st.session_state.cat_cols = df.select_dtypes(include="object").columns.tolist()
-
-
-# Auto-load once, BEFORE any widget is drawn
-if st.session_state.df_raw is None:
-    _auto_df = _load_auto()
-    if not _auto_df.empty:
-        _register(_auto_df, "olist_full_clean.csv")
-
-with st.container():
-    col_load, col_target, col_thresh, col_info = st.columns([3, 2, 2, 3])
-
-    with col_load:
-        uploaded = st.file_uploader(
-            "Load Dataset (.csv)", type=["csv"],
-            key="file_uploader", label_visibility="collapsed")
-        if uploaded:
-            try:
-                _df = pd.read_csv(uploaded, sep=None, engine="python")
-                _register(_df, uploaded.name)
-                st.success(f"Loaded {uploaded.name} - {_df.shape[0]:,} rows x {_df.shape[1]} cols")
-            except Exception as e:
-                st.error(f"Error loading file: {e}")
-
-    with col_target:
-        if st.session_state.df_raw is not None:
-            cols = st.session_state.df_raw.columns.tolist()
-            default_idx = cols.index("is_satisfied") if "is_satisfied" in cols else 0
-            st.session_state.target_col = st.selectbox(
-                "Target Variable", cols, index=default_idx)
-
-    with col_thresh:
-        st.session_state.corr_threshold = st.slider(
-            "Correlation Threshold", 0.10, 0.90,
-            float(st.session_state.corr_threshold), 0.05)
-
-    with col_info:
-        if st.session_state.df_raw is not None:
-            _d = st.session_state.df_raw
-            st.markdown(
-                f"""<div style="background:white;border-radius:8px;padding:10px 14px;
-                box-shadow:0 2px 6px rgba(0,0,0,.08);font-size:0.82rem;line-height:1.8;">
-                <b>Shape:</b> {_d.shape[0]:,} x {_d.shape[1]}<br>
-                <b>Numeric:</b> {len(st.session_state.num_cols)} |
-                <b>Categorical:</b> {len(st.session_state.cat_cols)}<br>
-                <b>Missing:</b> {_d.isnull().sum().sum():,} cells
-                </div>""", unsafe_allow_html=True)
-        else:
-            st.info("Upload a CSV or place it in data/ folder.")
-
-st.markdown("---")
 
 # =============================================================================
 # D — HELPER UTILITIES
@@ -1498,30 +1423,59 @@ with tabs[8]:
         with col_r:
             st.markdown("#### 💳 Payment Type Distribution")
             if "payment_type" in df.columns:
+                
                 pay_counts = df["payment_type"].value_counts()
-                colors_pie = ["#1565c0","#2e7d32","#e65100","#6a1b9a"]
-                fig, ax = plt.subplots(figsize=(4.5, 3.8))
-                wedges, texts, autotexts = ax.pie(
-                    pay_counts.values,
-                    labels=None,          # no inline labels — use legend
-                    autopct="%1.1f%%",
-                    colors=colors_pie[:len(pay_counts)],
-                    startangle=90,
-                    pctdistance=0.75,
-                    wedgeprops={"linewidth":1.5, "edgecolor":"white"}
+        colors_pie = ["#1565c0", "#2e7d32", "#e65100", "#6a1b9a"]
+        total = pay_counts.sum()
+        pct = pay_counts.values / total * 100
+
+        fig, ax = plt.subplots(figsize=(4.5, 3.8))
+        wedges, _ = ax.pie(
+            pay_counts.values,
+            labels=None,
+            colors=colors_pie[:len(pay_counts)],
+            startangle=90,
+            counterclock=False,
+            wedgeprops={"linewidth": 1.5, "edgecolor": "white"},
+        )
+
+        THRESH = 5      # % below which the label goes outside
+        small_idx = 0   # counter used to stagger outside labels
+
+        for w, p in zip(wedges, pct):
+            ang = np.deg2rad((w.theta2 + w.theta1) / 2)
+            x, y = np.cos(ang), np.sin(ang)
+
+            if p >= THRESH:
+                # big slice: label inside, white text for contrast
+                ax.text(0.65 * x, 0.65 * y, f"{p:.1f}%",
+                        ha="center", va="center",
+                        fontsize=10, fontweight="bold", color="white")
+            else:
+                # small slice: label outside with a leader line,
+                # staggered vertically so neighbours never collide
+                x_text = 1.35 * np.sign(x) if x != 0 else 1.35
+                y_text = 1.15 - small_idx * 0.28
+                ax.annotate(
+                    f"{p:.1f}%",
+                    xy=(x, y), xytext=(x_text, y_text),
+                    ha="left" if x >= 0 else "right", va="center",
+                    fontsize=9, fontweight="bold",
+                    arrowprops=dict(arrowstyle="-", color="gray", lw=0.8,
+                                    connectionstyle="arc3,rad=0.1"),
                 )
-                for t in autotexts:
-                    t.set_fontsize(9)
-                    t.set_fontweight("bold")
-                ax.legend(wedges, pay_counts.index,
-                          title="Payment Type",
-                          loc="lower center",
-                          bbox_to_anchor=(0.5, -0.18),
-                          ncol=2, fontsize=8)
-                ax.set_title("Payment Type Share", fontsize=11, fontweight="bold")
-                fig.tight_layout()
-                st.pyplot(fig)
-                plt.close(fig)
+                small_idx += 1
+
+        ax.legend(wedges, pay_counts.index,
+                  title="Payment Type",
+                  loc="upper center",
+                  bbox_to_anchor=(0.5, -0.02),
+                  ncol=2, fontsize=8, frameon=False)
+        ax.set_title("Payment Type Share", fontsize=11, fontweight="bold")
+        ax.set_aspect("equal")
+        fig.tight_layout()
+        st.pyplot(fig)
+        plt.close(fig)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
