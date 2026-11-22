@@ -165,6 +165,12 @@ S = st.session_state   # shorthand
 # ─────────────────────────────────────────────────────────────────────────────
 # D  HELPER UTILITIES & helper function (for parallel training )
 # ─────────────────────────────────────────────────────────────────────────────
+# load and define (numeric_cols/ get_cat_cols)
+def get_numeric_cols(df):
+    return df.select_dtypes(include="number").columns.tolist()
+
+def get_cat_cols(df):
+    return df.select_dtypes(exclude="number").columns.tolist()
 #-----------------------------------------------------
 # ── CPU info helper ──────────────────────────────────────────────────────────
 import os, psutil
