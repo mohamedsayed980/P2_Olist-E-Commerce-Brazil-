@@ -5,7 +5,6 @@
 # Adds NEW: Tab 7 (Missing Values & Imputation) + Tab 8 (Multicollinearity VIF)
 #
 # Compatible with: ML_Engine_Step2_Outliers_Report.py  (Part 1 backend)
-# Dataset tested:  kc_house_data.csv  (King County House Prices)
 #
 # Run with:  streamlit run ML_Engine_Dashboard.py
 # =============================================================================
@@ -17,6 +16,7 @@
 
 # A1 — Core
 import streamlit as st
+
 import pandas as pd
 import numpy as np
 import os
@@ -56,7 +56,7 @@ import pathlib
 LOGO = pathlib.Path(__file__).parent.parent / "3M_logo.png"
 
 # =============================================================================
-# C — SESSION STATE INITIALISATION  (P3 HR Attrition)
+# C — SESSION STATE INITIALISATION  
 # =============================================================================
 def init_state():
     defaults = {
@@ -216,77 +216,6 @@ st.markdown("""
 # F — FILE LOADER (Sidebar-free: shown above tabs)
 # =============================================================================
 
-with st.sidebar:
-    st.image(str(LOGO), width=70)
-    st.markdown("---")
-    
-
-with st.container():
-    col_load, col_target, col_thresh, col_info = st.columns([3, 2, 2, 3])
-
-    with col_load:
-        uploaded = st.file_uploader(
-            "📂 Load Dataset (.csv)", type=["csv"],
-            key="file_uploader", label_visibility="collapsed",
-            help="Upload your CSV dataset"
-        )
-        if uploaded:
-            try:
-                df = pd.read_csv(uploaded, sep=None, engine="python")
-                st.session_state.df_raw  = df.copy()
-                st.session_state.df_work = df.copy()
-                st.session_state.file_name = uploaded.name
-                
-                st.session_state.num_cols = get_numeric_cols(df)
-                st.session_state.cat_cols = get_cat_cols(df)
-                
-                # Safety: if get_numeric_cols filtered too aggressively, fallback to all numeric  # add that safety
-                if len(st.session_state.num_cols) == 0:
-                    st.session_state.num_cols = df.select_dtypes(include="number").columns.tolist()
-                    if len(st.session_state.cat_cols) == 0:
-                        st.session_state.cat_cols = df.select_dtypes(include="object").columns.tolist()
-                
-                st.success(f"✅  Loaded **{uploaded.name}** — {df.shape[0]:,} rows × {df.shape[1]} columns")
-            except Exception as e:
-                st.error(f"Error loading file: {e}")
-
-    with col_target:
-        if st.session_state.df_raw is not None:
-            cols = st.session_state.df_raw.columns.tolist()
-            
-            #default_idx = cols.index("price") if "price" in cols else 0                    # old repo1# xx
-            
-            default_idx = cols.index("is_satisfied") if "is_satisfied" in cols else 0     # new update
-            
-            target = st.selectbox("🎯 Target Variable", cols, index=default_idx)
-            st.session_state.target_col = target
-
-    with col_thresh:
-        thresh = st.slider(
-            "Correlation Threshold",
-            0.10, 0.90,
-            float(st.session_state.corr_threshold),
-            0.05
-        )
-        st.session_state.corr_threshold = thresh
-
-    with col_info:
-        if st.session_state.df_raw is not None:
-            df = st.session_state.df_raw
-            st.markdown(f"""
-            <div style="background:white;border-radius:8px;padding:10px 14px;
-                        box-shadow:0 2px 6px rgba(0,0,0,.08);font-size:0.82rem;line-height:1.8;">
-                📊 <b>Shape:</b> {df.shape[0]:,} × {df.shape[1]}<br>
-                🔢 <b>Numeric:</b> {len(st.session_state.num_cols)} &nbsp;|&nbsp;
-                🔤 <b>Categorical:</b> {len(st.session_state.cat_cols)}<br>
-                ❓ <b>Missing:</b> {df.isnull().sum().sum():,} cells
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.info("⬆️ Please upload a CSV file to begin.")
-            
-     
-st.markdown("---")
 
 # =============================================================================
 # G — TABS
