@@ -5,8 +5,6 @@
 # Adds NEW: Tab 7 (Missing Values & Imputation) + Tab 8 (Multicollinearity VIF)
 #
 # Compatible with: ML_Engine_Step2_Outliers_Report.py  (Part 1 backend)
-# Dataset tested:  kc_house_data.csv  (King County House Prices)
-#
 # Run with:  streamlit run ML_Engine_Dashboard.py
 # =============================================================================
 ## path = streamlit run "G:\FINAL PROJECTS\P2_Olist E-Commerce (Brazil)\EDA_Dashboard.py"
@@ -87,17 +85,13 @@ init_state()
 # D — HELPER UTILITIES
 # =============================================================================
 # load and define (numeric_cols/ get_cat_cols)
+#-----------------------------------------------------
+import numpy as np
 def get_numeric_cols(df):
-    return df.select_dtypes(include="number").columns.tolist()
+    return df.select_dtypes(include=[np.number]).columns.tolist()
 
 def get_cat_cols(df):
-    return df.select_dtypes(exclude="number").columns.tolist()
-#-----------------------------------------------------
-#def get_numeric_cols(df):
-#    return df.select_dtypes(include=[np.number]).columns.tolist()
-
-#def get_cat_cols(df):
-#    return df.select_dtypes(include=["object", "category"]).columns.tolist()
+    return df.select_dtypes(include=["object", "category"]).columns.tolist()
 #-----------------------------------------------------
 def outlier_lamp_html(pct):
     if pct < 2:
