@@ -151,7 +151,7 @@ with st.container():
     with col_target:
         if st.session_state.df_raw is not None:
             cols = st.session_state.df_raw.columns.tolist()
-            default_idx = cols.index("is_satesfied") if "is_satesfied" in cols else 0
+            default_idx = cols.index("is_satisfied") if "is_satisfied" in cols else 0
             st.session_state.target_col = st.selectbox(
                 "Target Variable", cols, index=default_idx)
 
