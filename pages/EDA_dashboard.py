@@ -45,6 +45,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from docx import Document
 from docx.shared import Pt, RGBColor, Inches
+
+
 # load and define (numeric_cols/ get_cat_cols)
 #-----------------------------------------------------
 from utils import get_numeric_cols, get_cat_cols
