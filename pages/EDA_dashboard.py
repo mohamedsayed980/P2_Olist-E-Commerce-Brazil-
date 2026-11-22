@@ -92,19 +92,28 @@ def init_state():
             st.session_state[k] = v
 
 init_state()
+
 # =============================================================================
 # F — FILE LOADER  (auto-load from data/ folder, upload as fallback)
 # =============================================================================
-_root     = pathlib.Path(__file__).parent.parent
-_csv_path = _root / "data" / "olist_full_clean.csv"
+import pathlib
 
+_root  = pathlib.Path(__file__).parent.parent
+_part1 = _root / "data" / "olist_full_clean_part1.csv"
+_part2 = _root / "data" / "olist_full_clean_part2.csv"
+_full  = _root / "data" / "olist_full_clean.csv"
 
 @st.cache_data
 def _load_auto():
-    if _csv_path.exists():
-        return pd.read_csv(_csv_path)
+    """Auto-load from GitHub data/ folder — full or split parts"""
+    if _full.exists():
+        return pd.read_csv(_full)
+    elif _part1.exists() and _part2.exists():
+        return pd.concat([
+            pd.read_csv(_part1),
+            pd.read_csv(_part2)
+        ], ignore_index=True)
     return pd.DataFrame()
-
 
 def _register(df, name):
     st.session_state.df_raw    = df.copy()
