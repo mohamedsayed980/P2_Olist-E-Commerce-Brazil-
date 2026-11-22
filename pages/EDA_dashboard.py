@@ -45,7 +45,10 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from docx import Document
 from docx.shared import Pt, RGBColor, Inches
-
+# load and define (numeric_cols/ get_cat_cols)
+#-----------------------------------------------------
+from utils import get_numeric_cols, get_cat_cols
+#-----------------------------------------------------
 # =============================================================================
 # B — PAGE CONFIG & GLOBAL STYLE -----> in Home.py only 
 # =============================================================================
@@ -84,15 +87,6 @@ init_state()
 # =============================================================================
 # D — HELPER UTILITIES
 # =============================================================================
-# load and define (numeric_cols/ get_cat_cols)
-#-----------------------------------------------------
-import numpy as np
-def get_numeric_cols(df):
-    return df.select_dtypes(include=[np.number]).columns.tolist()
-
-def get_cat_cols(df):
-    return df.select_dtypes(include=["object", "category"]).columns.tolist()
-#-----------------------------------------------------
 def outlier_lamp_html(pct):
     if pct < 2:
         return '<span class="badge-green">🟢 Clean (&lt;2%)</span>'
