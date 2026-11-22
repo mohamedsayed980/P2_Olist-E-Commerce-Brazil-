@@ -49,6 +49,14 @@ from docx.shared import Pt, RGBColor, Inches
 #-----------------------------------------------------
 from utils import get_numeric_cols, get_cat_cols
 #-----------------------------------------------------
+# define get_numeric_cols/get_cat_cols
+def get_numeric_cols(df):
+    return df.select_dtypes(include=[np.number]).columns.tolist()
+
+def get_cat_cols(df):
+    return df.select_dtypes(include=["object", "category"]).columns.tolist()
+#---------------------------------------------------------------------------
+
 # =============================================================================
 # B — PAGE CONFIG & GLOBAL STYLE -----> in Home.py only 
 # =============================================================================
@@ -87,13 +95,6 @@ init_state()
 # =============================================================================
 # D — HELPER UTILITIES
 # =============================================================================
-# define get_numeric_cols/get_cat_cols
-def get_numeric_cols(df):
-    return df.select_dtypes(include=[np.number]).columns.tolist()
-
-def get_cat_cols(df):
-    return df.select_dtypes(include=["object", "category"]).columns.tolist()
-#---------------------------------------------------------------------------
 
 def outlier_lamp_html(pct):
     if pct < 2:
