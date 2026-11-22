@@ -59,6 +59,7 @@ from sklearn.metrics         import (mean_absolute_error, mean_squared_error,
 from sklearn.inspection      import permutation_importance
 import joblib, pickle
 
+
 # A6 — Report generation
 try:
     from reportlab.lib.pagesizes   import letter, A4
@@ -79,7 +80,10 @@ try:
 except ImportError:
     DOCX_OK = False
 
-
+# load and define (numeric_cols/ get_cat_cols)
+#-----------------------------------------------------
+from utils import get_numeric_cols, get_cat_cols
+#-----------------------------------------------------
 # ─────────────────────────────────────────────────────────────────────────────
 # B  PAGE CONFIG & GLOBAL STYLE------>> in  Home.py  only 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -165,15 +169,6 @@ S = st.session_state   # shorthand
 # ─────────────────────────────────────────────────────────────────────────────
 # D  HELPER UTILITIES & helper function (for parallel training )
 # ─────────────────────────────────────────────────────────────────────────────
-# load and define (numeric_cols/ get_cat_cols)
-import numpy as np
-
-def get_numeric_cols(df):
-    return df.select_dtypes(include=[np.number]).columns.tolist()
-
-def get_cat_cols(df):
-    return df.select_dtypes(include=["object", "category"]).columns.tolist()
-#-----------------------------------------------------
 # ── CPU info helper ──────────────────────────────────────────────────────────
 import os, psutil
 
